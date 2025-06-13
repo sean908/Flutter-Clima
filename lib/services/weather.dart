@@ -1,4 +1,28 @@
+import 'networking.dart';
+import 'location.dart';
+import 'package:geolocator/geolocator.dart';
+
 class WeatherModel {
+  final NetworkHelper networkHelper = NetworkHelper();
+  final LocationService locationService = LocationService();
+
+  /// 获取当前位置的天气数据
+  Future<dynamic> getLocationWeather() async {
+    Position? position = await locationService.getCurrentLocation();
+    if (position != null) {
+      return await networkHelper.getWeatherData(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    }
+    return null;
+  }
+
+  /// 通过城市名称获取天气数据
+  Future<dynamic> getCityWeather(String cityName) async {
+    return await networkHelper.getWeatherByCity(cityName);
+  }
+
   String getWeatherIcon(int condition) {
     if (condition < 300) {
       return '🌩';

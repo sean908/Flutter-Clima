@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/location.dart';
+import '../services/networking.dart';
+import '../services/weather.dart';
+import 'location_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -8,19 +12,27 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  final LocationService locationService = LocationService();
+  final WeatherModel weatherModel = WeatherModel();
   
   @override
   void initState() {
     super.initState();
-    // 页面加载时立即获取位置信息
-    getLocation();
+    // 页面加载时立即获取位置信息和天气数据
+    getLocationData();
   }
 
-  void getLocation() async {
-    Position? position = await locationService.getCurrentLocation();
-    if (position != null) {
-      print(position);
+  void getLocationData() async {
+    var weatherData = await weatherModel.getLocationWeather();
+
+    if (weatherData != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return LocationScreen(weatherData: weatherData);
+          },
+        ),
+      );
     }
   }
 
@@ -28,12 +40,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            //Get the current location
-            getLocation();
-          },
-          child: Text('Get Location'),
+        child: SpinKitDoubleBounce(
+          color: Colors.white,
+          size: 100.0,
         ),
       ),
     );
